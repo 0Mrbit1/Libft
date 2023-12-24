@@ -6,87 +6,56 @@
 /*   By: acharik <acharik@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/24 08:25:01 by acharik           #+#    #+#             */
-/*   Updated: 2023/11/27 08:13:51 by acharik          ###   ########.fr       */
+/*   Updated: 2023/12/24 015:50:51 by acharik          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static size_t	ft_power(size_t number, size_t power)
+static char	*copy_data(int number_len, long number, int div_by, short flag)
 {
-	size_t	result;
+	char	*ptr;
+	int		i;
 
-	result = 1;
-	while (power--)
+	i = 0;
+	ptr = (char *)malloc(number_len + 1);
+	if (flag)
 	{
-		result = result * number;
-	}
-	return (result);
-}
-
-static int	ft_calculate_number_len(long n)
-{
-	int	i;
-
-	i = 1;
-	n = n / 10;
-	while (n > 0)
-	{
-		n = n / 10;
+		ptr[i] = '-';
 		i++;
 	}
-	return (i);
-}
-
-static char	*get_job_done(int number_len, long n, char *ptr, int i)
-{
-	int	digit;
-
-	if (!ptr)
-		return (NULL);
-	while (number_len)
+	while (div_by)
 	{
-		digit = n / ft_power(10, number_len - 1);
-		ptr[i] = digit + '0';
-		n = n - digit * ft_power(10, number_len - 1);
-		number_len--;
+		ptr[i] = number / div_by + '0';
+		number = number % div_by;
+		div_by = div_by / 10;
 		i++;
 	}
 	ptr[i] = '\0';
 	return (ptr);
 }
 
-static void	setup_zeroes(size_t *number_len, size_t *flag)
-{
-	*number_len = 0;
-	*flag = 0;
-}
-
 char	*ft_itoa(int n)
 {
-	size_t	number_len;
-	size_t	flag;
-	size_t	i;
-	long	ln;
-	char	*ptr;
+	int		div_by;
+	long	number;
+	short	flag;
+	short	number_len;
 
-	ln = n;
-	i = 0;
-	setup_zeroes(&number_len, &flag);
-	if (ln < 0)
+	number = n;
+	div_by = 1;
+	number_len = 1;
+	flag = 0;
+	if (number < 0)
 	{
-		ln *= -1;
-		number_len += 1;
+		number *= -1;
 		flag = 1;
+		number_len++;
 	}
-	number_len += ft_calculate_number_len(ln);
-	ptr = malloc(number_len + 1);
-	if (!ptr)
-		return (NULL);
-	if (flag)
+	while (number / div_by > 9)
 	{
-		ptr[i++] = '-';
-		number_len--;
+		div_by *= 10;
+		number_len++;
 	}
-	return (get_job_done(number_len, ln, ptr, i));
+	return (copy_data(number_len, number, div_by, flag));
 }
