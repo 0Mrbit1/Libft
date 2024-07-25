@@ -15,6 +15,9 @@
 
 # include <stdlib.h>
 # include <unistd.h>
+#ifndef BUFFER_SIZE
+#define BUFFER_SIZE 1
+#endif
 
 typedef struct s_list
 {
@@ -28,7 +31,7 @@ int					ft_isdigit(int c);
 int					ft_isalnum(int c);
 int					ft_isascii(int c);
 int					ft_isprint(int c);
-size_t				ft_strlen(const char *s);
+ssize_t				ft_strlen(const char *s);
 void				*ft_memset(void *b, int c, size_t len);
 void				ft_bzero(void *s, size_t n);
 void				*ft_memcpy(void *dst, const void *src, size_t n);
@@ -49,7 +52,7 @@ void				*ft_calloc(size_t count, size_t size);
 char				*ft_strdup(const char *s1);
 
 /* additional */
-char				*ft_substr(const char *s, unsigned int start, size_t len);
+char				*ft_substr(const char *s, unsigned int start, ssize_t len);
 char				*ft_strjoin(const char *s1, const char *s2);
 char				*ft_strtrim(const char *s1, const char *set);
 char				**ft_split(const char *s, char c);
@@ -72,5 +75,7 @@ void				ft_lstclear(t_list **lst, void (*del)(void *));
 void				ft_lstiter(t_list *lst, void (*f)(void *));
 t_list				*ft_lstmap(t_list *lst, void *(*f)(void *),
 						void (*del)(void *));
+
+char* get_next_line(int fd) ; 
 
 #endif
