@@ -1,8 +1,7 @@
 #include "libft.h"
 
-static char *return_with_line (char *last_line  , char *line  , short *line_found )
+static char *with_line (char *last_line  , char *line  , short *line_found )
 {
-
     char *final_line ; 
     
     if (!last_line)
@@ -17,7 +16,7 @@ static char *return_with_line (char *last_line  , char *line  , short *line_foun
     return final_line; 
 }
 
-static char *return_without_line (char **buffer , char *last_line   , char *line)
+static char *without_line (char **buffer , char *last_line   , char *line)
 {
     char *final_line ; 
 
@@ -40,7 +39,7 @@ static char *build_line(char **buffer , int bytes_read , char *last_line , short
     char *line;
 
     i = 0;
-    line = (char*)malloc((bytes_read + 1 )*sizeof(char) );
+    line = (char*)malloc((bytes_read + 1 )* sizeof(char) );
     if (!line)
         return NULL;
     while((*buffer)[i])
@@ -48,16 +47,19 @@ static char *build_line(char **buffer , int bytes_read , char *last_line , short
         line[i] = (*buffer)[i] ;
         if ((*buffer)[i] == '\n')
         {
-            ft_memmove(*buffer , *buffer + i  + 1 , bytes_read - i  ) ; 
-            i++;
-            line[i] = '\0';
-            return return_with_line (last_line  , line  , line_found ); 
+            ft_memmove(*buffer ,  &((*buffer)[i+1])    , bytes_read - i) ; 
+            line[++i] = '\0';
+            if ((*buffer)[i] == '\0')
+            {
+                free(*buffer);
+                *buffer = NULL ;
+            }
+            return with_line (last_line  , line  , line_found ); 
         }
         i++;
     }
     line[i] = '\0';
- 
-    return return_without_line (buffer , last_line , line);
+    return without_line (buffer , last_line , line);
 }
 
 char *read_file(int fd , char *buffer  , ssize_t *bytes_read)
@@ -96,11 +98,13 @@ char *get_next_line(int fd)
    line = NULL;
    while (1)
    {
-        buffer = read_file(fd , buffer  , &bytes_read);  
+        buffer = read_file(fd , buffer  , &bytes_read); 
         if (buffer && !line_found)
+        {
             line = build_line(&buffer , bytes_read , line , &line_found );
-        else if (buffer && !line_found )
-            line = build_line(&buffer , bytes_read , line , &line_found );
+            if (line_found)
+                return line ;
+        } 
         else 
             return line ;
    }
