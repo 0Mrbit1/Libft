@@ -5,108 +5,81 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: acharik <acharik@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/11/24 10:35:26 by acharik           #+#    #+#             */
-/*   Updated: 2023/11/27 08:50:46 by acharik          ###   ########.fr       */
+/*   Created: 2024/08/06 06:49:49 by acharik           #+#    #+#             */
+/*   Updated: 2024/08/06 06:50:48 by acharik          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft.h"
 
-static size_t	ft_strlen_updated(const char *str, char c)
+static char	is_delimiter(char c, char *delimiters)
 {
-	size_t	i;
+	int	i;
 
 	i = 0;
-	while ((str[i] != '\0') && (str[i] != c))
+	while (delimiters[i])
 	{
+		if (c == delimiters[i])
+			return (1);
 		i++;
 	}
-	return (i);
+	return (0);
 }
 
-static size_t	ft_words_count(const char *str, char c)
+static int	words_count(char *str, char *delimiters)
 {
-	size_t	i;
-	size_t	end;
-	size_t	word_count;
+	int	i;
+	int	words;
 
+	words = 0;
 	i = 0;
-	word_count = 0;
-	while (str[i] != '\0')
+	while (is_delimiter(str[i], delimiters))
+		i++;
+	while (str[i])
 	{
-		if (str[i] != c)
+		if (is_delimiter(str[i], delimiters) || !str[i + 1])
 		{
-			word_count += 1;
-			end = ft_strlen_updated(&str[i], c);
-			i += end - 1;
+			while (is_delimiter(str[i], delimiters))
+				i++;
+			words++;
 		}
 		i++;
 	}
-	return (word_count);
+	return (words);
 }
 
-static void	fill_up_ptr(const char *str, char *ptr, size_t start, size_t end)
+static void	store_data(char **dest, char *src, int str_size, char *delimiters)
 {
-	size_t	j;
-
-	j = 0;
-	while (j < end)
-	{
-		ptr[j] = str[start];
-		j++;
-		start++;
-	}
-	ptr[j] = '\0';
+	*dest = malloc(sizeof(char) * (str_size + 1));
+	ft_memmove(*dest, src, str_size);
+	(*dest)[str_size] = '\0';
 }
 
-static char	**get_start_end_fill(char *ptr, char **split, const char *str,
-		char c)
+char	**ft_split(char *str, char *delimiters)
 {
-	size_t	end;
-	size_t	i;
-	size_t	j;
-
-	i = 0;
-	j = 0;
-	while (str[i] != '\0')
-	{
-		if (str[i] != c)
-		{
-			end = ft_strlen_updated(&str[i], c);
-			ptr = (char *)malloc(end + 1);
-			if (!ptr)
-			{
-				while (j)
-					free(split[--j]);
-				return (NULL);
-			}
-			fill_up_ptr(str, ptr, i, end);
-			split[j++] = ptr;
-			i += end - 1;
-		}
-		i++;
-	}
-	return (split);
-}
-
-char	**ft_split(char const *s, char c)
-{
+	int		i;
+	int		j;
+	int		str_size;
+	int		start;
 	char	**split;
-	char	*ptr;
-	size_t	words;
 
-	if (!s)
-		return (NULL);
-	words = ft_words_count(s, c);
-	ptr = 0;
-	split = (char **)malloc(sizeof(ptr) * (words + 1));
-	if (!split)
-		return (NULL);
-	if (!get_start_end_fill(ptr, split, s, c))
+	i = 0;
+	j = 0;
+	split = malloc(sizeof(char *) * (words_count(str, delimiters) + 1));
+	start = skip_delimiters(str, i, delimiters);
+	while (str[i])
 	{
-		free(split);
-		return (NULL);
+		if (is_delimiter(str[i], delimiters))
+		{
+			str_size = i - start;
+			store_data(&(split[j]), &(str[start]), str_size, delimiters);
+			j++;
+			start = skip_delimiters(str, i, delimiters);
+		}
+		i++;
 	}
-	split[words] = NULL;
+	str_size = i - start;
+	store_data(&(split[j++]), &(str[start]), str_size, delimiters);
+	split[j] = NULL;
 	return (split);
 }
