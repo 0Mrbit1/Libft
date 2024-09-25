@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/minishell.h"
 
-int	ft_lstsize(t_list *lst)
+int	ft_lstsize(t_command *lst)
 {
 	int	lst_size;
 

@@ -1,4 +1,4 @@
-#include "libft.h"
+#include "../../include/minishell.h"
 
 static char *with_line (char *last_line  , char *line  , short *line_found )
 {

@@ -9,8 +9,7 @@
 /*   Updated: 2023/11/24 13:12:57 by acharik          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "libft.h"
+#include "../../include/minishell.h"
 
 int	ft_toupper(int num)
 {

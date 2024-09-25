@@ -10,9 +10,9 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
+#include "../../include/minishell.h"
 
-t_list	*ft_lstnew(void *content)
+t_list	*ft_lstnew(t_command *content)
 {
 	t_list	*ptr;
 
