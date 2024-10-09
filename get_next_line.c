@@ -3,168 +3,162 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-//#define BUFFER_SIZE 42
+#ifndef BUFFER_SIZE 
+        #define BUFFER_SIZE 1
+#endif
 
 int ft_strlen(char *str)
 {
-    int i ;
+    int i;
 
-    i = 0 ;
+    i = 0;
     while(str[i])
         i++;
     return i;
 }
 
-char *ft_strjoin(char *chunk1 , char *chunk2)
-{
-    int i ; 
-    int j;
-    char *new_str; 
-
-    i = 0;
-    j = 0;
-    new_str = (char*)malloc( sizeof(char)  * ( ft_strlen(chunk1) + ft_strlen(chunk2)  +1 )    ) ;
-    if(!new_str)
-        exit(1); 
-    if (!new_str)
-        exit(1);
-    if (!new_str)
-        return NULL; 
-    while(chunk1[i])
-    {
-        new_str[j] = chunk1[i] ; 
-        j++;
-        i++;
-    }
-    i = 0 ;
-    while(chunk2[i])
-    {
-        new_str[j] = chunk2[i] ; 
-        i++;
-        j++;
-    }
-
-    new_str[j] = '\0' ;
-    free(chunk1) ;
-    free(chunk2) ;
-    return new_str ;
-}
 
 char *ft_strdup(char *str)
 {
     int i;
-    char *new_str;
+    char *new_str; 
 
+    new_str = malloc(sizeof(char)*( ft_strlen(str) +1  ) ) ; 
+    if(!new_str)
+        return NULL; 
     i = 0;
-    new_str = malloc(ft_strlen(str) +  1 );
-    if(!new_str)
-        exit(1);
-    if(!new_str)
-        exit(1);
     while(str[i])
     {
         new_str[i] = str[i] ; 
         i++;
     }
-    new_str[i] = '\0' ; 
-    return new_str; 
+    new_str[i] = '\0';
+    return new_str;
 }
 
-char*  build_line(char *last_line , char *buffer , short *line_found)
+char *ft_strjoin(char *s1 , char *s2)
 {
-    int  i;
-    char *line;
-    char *new_line; 
 
-    i = 0;
-    line = (char*)malloc(sizeof(char)*(ft_strlen(buffer) + 1) ); 
-    if (!line)
-        exit(1);
+    char *new_str;
+    int i ;
+    int j ;
+
+    new_str = malloc(sizeof(char)*( ft_strlen(s1) + ft_strlen(s2) + 1  ) ) ;
+    if(!new_str)
+        return NULL;
+    i = 0 ;
+    j = 0 ;
+    while(s1[i])
+    {
+        new_str[j] = s1[i];
+        i++;
+        j++;
+    } 
+    i = 0 ; 
+    while(s2[i])
+    {
+        new_str[j] = s2[i];
+        i++;
+        j++;
+    }
+    new_str[j] = '\0';
+    free(s1);
+    free(s2) ; 
+    return new_str;
+}
+
+
+char *find_line(char *last_line , char *buffer, short *line_found)
+{
+    int i; 
+    char *line;
+
+    if (!*buffer)
+        return last_line;
+    i = 0 ; 
+    line = malloc(sizeof(char) * (ft_strlen(buffer) + 1 )   ) ;
     if(!line)
-        exit(1);
+        return NULL;
     while(buffer[i])
     {
-        line[i] = buffer[i]; 
+        line[i] = buffer[i];  
         if(line[i] == '\n')
         {
-            *line_found = i + 1; 
-            line[++i] = '\0'; 
-             if (!last_line) 
-                    return line;
-            new_line = ft_strjoin(last_line , line); 
-            return new_line; 
+            line[++i] = '\0';
+            if (last_line)
+                line = ft_strjoin(last_line , line );
+            *line_found = i; 
+            return line; 
         }
         i++;
     }
-    line[i] = '\0'; 
-    if (!last_line) 
-        return line; 
-   
-    new_line = ft_strjoin(last_line , line); 
-    return new_line; 
+    line[i] = '\0';
+    if (last_line)
+        line = ft_strjoin(last_line , line );
+    return line; 
 }
 
-char *get_next_line(int fd )
+char *get_next_line(int fd)
 {
-    if (fd < 0)
-        return NULL ; 
-    int bytes_read ;
-    char *line ; 
-    short line_found; 
-    static char  *buffer;
-    char *new_buffer; 
+    static char *buffer;
+    char *line;
+    int bytes_read;
+    short line_found;
+    char *resize;
 
-    line_found = 0;
-    line = NULL;
+    line_found = 0; 
+    line = NULL; 
     if (buffer)
     {
-        line = build_line(line , buffer , &line_found );    
+        line = find_line(line , buffer , &line_found);
         if(line_found)
         {
-            new_buffer = ft_strdup (     &(buffer[line_found])   ) ;
-            free(buffer);
-            buffer = new_buffer;
-            if (!(*buffer))
-            {
-                free(buffer);
-                buffer = NULL ; 
-            } 
-            return line; 
+            resize = buffer;
+            buffer = ft_strdup(  &(buffer[line_found]));
+            free(resize);
+            return line;       
         }
+        free(buffer) ;
     }
-    free(buffer);
-    buffer = malloc(sizeof(char)*(BUFFER_SIZE + 1 ) ) ; 
-
-    while (1)
+    buffer = malloc(sizeof(char)*(BUFFER_SIZE + 1)); 
+    if(!buffer)
+        return NULL; 
+    while(1)
     {
-        bytes_read = read(fd , buffer , BUFFER_SIZE );
-        if (bytes_read < 0)
-        {
-            free(buffer);
-            return NULL ; 
-        }
+        bytes_read = read(fd , buffer , BUFFER_SIZE) ;
         buffer[bytes_read] = '\0'; 
-        if (!bytes_read)
-        {
-            free(buffer) ;
-            buffer = NULL ; 
-            return line ; 
-        }
-        line = build_line(line , buffer , &line_found);
+        line = find_line ( line , buffer , &line_found);
         if(line_found)
         {
-            new_buffer = ft_strdup(     &(buffer[line_found])   ) ;  
+            resize = buffer;
+            buffer = ft_strdup( &(buffer[line_found]) );
+            free(resize);
+            return line;       
+        }
+        if(!bytes_read)
+        {
             free(buffer);
-            buffer = new_buffer;
-            if (!*buffer)
-            {
-                free(buffer);
-                buffer = NULL ; 
-            }
-            return line ; 
+            return line;
         }
     }
-    free(buffer);
-    return line ; 
-
 }
+
+/*int main()
+{
+
+    int fd;
+    char *line; 
+
+    fd = open("test" , O_RDONLY);
+
+    line = get_next_line(fd);
+
+    while(line)
+    {
+        printf("%s" , line);
+        free(line);
+        line = get_next_line(fd) ; 
+    }
+    printf("%s" , line);
+
+}*/
