@@ -4,7 +4,7 @@
 #include <stdio.h>
 
 #ifndef BUFFER_SIZE 
-        #define BUFFER_SIZE 1
+    #define BUFFER_SIZE 42
 #endif
 
 int ft_strlen(char *str)
@@ -17,19 +17,18 @@ int ft_strlen(char *str)
     return i;
 }
 
-
 char *ft_strdup(char *str)
 {
     int i;
     char *new_str; 
 
-    new_str = malloc(sizeof(char)*( ft_strlen(str) +1  ) ) ; 
+    new_str = malloc(sizeof(char)*( ft_strlen(str) +1  ) ); 
     if(!new_str)
         return NULL; 
     i = 0;
     while(str[i])
     {
-        new_str[i] = str[i] ; 
+        new_str[i] = str[i]; 
         i++;
     }
     new_str[i] = '\0';
@@ -38,7 +37,6 @@ char *ft_strdup(char *str)
 
 char *ft_strjoin(char *s1 , char *s2)
 {
-
     char *new_str;
     int i ;
     int j ;
@@ -54,7 +52,7 @@ char *ft_strjoin(char *s1 , char *s2)
         i++;
         j++;
     } 
-    i = 0 ; 
+    i = 0 ;
     while(s2[i])
     {
         new_str[j] = s2[i];
@@ -67,7 +65,6 @@ char *ft_strjoin(char *s1 , char *s2)
     return new_str;
 }
 
-
 char *find_line(char *last_line , char *buffer, short *line_found)
 {
     int i; 
@@ -76,7 +73,7 @@ char *find_line(char *last_line , char *buffer, short *line_found)
     if (!*buffer)
         return last_line;
     i = 0 ; 
-    line = malloc(sizeof(char) * (ft_strlen(buffer) + 1 )   ) ;
+    line = malloc(sizeof(char) * ( ft_strlen(buffer) + 1 )   ) ;
     if(!line)
         return NULL;
     while(buffer[i])
@@ -95,7 +92,7 @@ char *find_line(char *last_line , char *buffer, short *line_found)
     line[i] = '\0';
     if (last_line)
         line = ft_strjoin(last_line , line );
-    return line; 
+    return line;
 }
 
 char *get_next_line(int fd)
@@ -118,47 +115,28 @@ char *get_next_line(int fd)
             free(resize);
             return line;       
         }
-        free(buffer) ;
+        free(buffer);
     }
     buffer = malloc(sizeof(char)*(BUFFER_SIZE + 1)); 
     if(!buffer)
-        return NULL; 
+        return NULL;
     while(1)
     {
         bytes_read = read(fd , buffer , BUFFER_SIZE) ;
-        buffer[bytes_read] = '\0'; 
+        buffer[bytes_read] = '\0';
         line = find_line ( line , buffer , &line_found);
         if(line_found)
         {
             resize = buffer;
-            buffer = ft_strdup( &(buffer[line_found]) );
+            buffer = ft_strdup(&(buffer[line_found]));
             free(resize);
-            return line;       
+            return line;
         }
         if(!bytes_read)
         {
-            free(buffer);
+           free(buffer);
+            buffer = NULL ;
             return line;
         }
     }
 }
-
-/*int main()
-{
-
-    int fd;
-    char *line; 
-
-    fd = open("test" , O_RDONLY);
-
-    line = get_next_line(fd);
-
-    while(line)
-    {
-        printf("%s" , line);
-        free(line);
-        line = get_next_line(fd) ; 
-    }
-    printf("%s" , line);
-
-}*/
